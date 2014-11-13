@@ -1,0 +1,167 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <title>Canvas gauge</title>
+    <!-- To Work In IE: Make sure excanvas.js is in root or point to it if you put it in another location -->
+    <!--[if IE]><script type="text/javascript" src="excanvas/excanvas.js"></script><![endif]-->
+
+    <script type="text/javascript">
+		//Start and end values, leave these as is...
+		var sVal   = 0; // init start value,
+		var fVal   = 1; // init end value
+
+		var cVal   = sVal;
+		var id;
+		var casing = new Image();
+
+		//testing a loop javascript requesting live data via Ajax...
+		function updateData() {
+			//some ajax code to get live data....
+
+			// Your live values/data go here.
+			sVal  = Math.floor(Math.random()*99); // SET START VALUE
+			fVal  = Math.floor(Math.random()*99); // SET END VALUE
+
+			cVal = sVal;
+			clearInterval(id);
+			init();
+		}
+
+		window.onload = function(){
+			init();
+			}
+
+		function init(){
+		  casing.src = 'images/gauge_button.png';
+		  draw();
+		  id = setInterval(draw,100);
+		}
+
+		function draw() {
+		  if(sVal == fVal){
+			clearInterval(id);
+			return ;
+		  }else if (sVal < fVal && cVal >= fVal) {
+			clearInterval(id);
+		  }else if (sVal > fVal && cVal <= fVal) {
+			clearInterval(id);
+		  }
+
+		  var inc  = 1;
+		  var perc = (Math.abs(fVal-cVal)/Math.abs(fVal-sVal));
+
+		  if (perc < .2) { inc *= perc*7; }
+
+		  if (inc < .5) { inc = .5; }
+
+		  var dVal = -.5*Math.PI + (cVal/100)*2*Math.PI;
+		  cVal += (sVal < fVal) ? inc : -inc;
+
+		  var ctx = document.getElementById('myCanvas').getContext('2d');
+
+		  // Create the canvas gauge.
+		  ctx.globalCompositeOperation = 'destination-over';
+		  ctx.clearRect(0,0,200,200); // clear canvas
+
+		  ctx.fillStyle = 'rgba(125,125,125,1.0)';
+		  ctx.strokeStyle = 'rgba(255, 0, 0 ,1.0)';
+		  ctx.save();
+		  ctx.translate(100,105);
+
+		  // TESTING : show value
+		  var livevals = document.getElementById("livevals");
+		  livevals.innerHTML = "Last value (starting from): "+sVal+"<br>Current value: "+fVal;
+		  // TESTING : show value
+
+		  // rotate the needle
+		  ctx.rotate(dVal);
+
+		  // draw the needle; could be an image.
+		  ctx.lineWidth = 3;
+		  ctx.lineCap = "round";
+          ctx.moveTo(1.9,0);
+          ctx.lineTo(50,0);
+          ctx.stroke();
+		  ctx.restore();
+
+		  ctx.beginPath();
+		  // Add the cap on the needle
+		  ctx.drawImage(casing,0,0,casing.width,casing.height);
+		}
+    </script>
+
+    <style type="text/css">
+        body {
+            background-color: #5F5F5F;
+            color: #cccccc;
+        }
+
+        td {
+            border: 1px solid #cccccc;
+            padding: 10px;
+        }
+
+        a:link {
+            color: #cccccc;
+        }
+
+        a:visited {
+            color: #c8c8c8;
+        }
+
+        a:active {
+            color: #cccccc;
+        }
+
+        a:hover {
+            color: #ffffff;
+        }
+
+        #wrap {
+            width: 800px;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            margin: 10px 20px;
+        }
+
+        h2 {
+            color: #cccccc;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <noscript>
+        <h1>This page requires JavaScript. Please enable JavaScript in your browser and reload this page.</h1>
+
+    </noscript>
+
+    <!-- START CONTENT -->
+    <h2>Pure Javascript using the canvas tag.</h2>
+    <p>View Source for the example code. <a href="http://www.darkartistry.com/content/view/98/41/">[More Info]</a></p>
+    <div id="wrap">
+        <div style="background: url(images/back.png); width: 200px; height: 200px; min-width: 200px; border: 1px solid #ffffff; position: absolute; z-index: 97;">
+            <div style="background: url(images/cap.gif); width: 200px; height: 200px; min-width: 200px; position: absolute; z-index: 99;">
+            </div><canvas id="myCanvas" width="200px" height="200px" style="width: 200px; height: 200px; position: relative; z-index: 98;"></canvas>
+        </div>
+        <div style="position: absolute; top: 340px;">
+            <table>
+                <tr>
+                    <td align="top" cellpadding="10px">
+                        <br /><div style="border: 1px solid #cccccc; padding: 10px; width: 250px;"><span id="livevals">loading...</span></div>
+                        <form id="updateform" action="null.html" method="post">
+                            <br>
+                            <input type="button" onclick="updateData();" value="Random Update">
+                            <br /><span id="resultblock" class="error"></span>
+                        </form>
+
+                </tr>
+            </table><br>
+           
+        </div>
+    </div>
+</body>
+</html>
